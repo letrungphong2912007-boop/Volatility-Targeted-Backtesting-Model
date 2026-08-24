@@ -1,0 +1,10 @@
+ticker,weight,strategy
+TSLA,7,MA
+AAPL,7,MA
+AMZN,7,MA
+XLU,5,ME
+XLF,5,ME
+KO,3,PT
+PEP,3,PT
+
+

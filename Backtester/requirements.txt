@@ -1,0 +1,6 @@
+pandas>=2.2
+numpy>=1.26
+statsmodels>=0.14
+arch>=7.0
+yfinance>=0.2.40
+matplotlib>=3.8
