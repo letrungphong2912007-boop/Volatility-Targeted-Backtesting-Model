@@ -187,7 +187,7 @@ smaller than your ability to measure it.
 ```
 raw       =  direction / sigma_hat                 per sleeve
 raw       =  raw / sum |raw|                       normalised
-sigma_p   =  sqrt( w' D C D w )                    D = diag(sigma_hat), C = correlation
+sigma_p   =  sqrt( wT D C D w )                    D = diag(sigma_hat), C = correlation
 leverage  =  clip( target_vol / sigma_p, -cap, cap )
 weight    =  raw * leverage
 ```
