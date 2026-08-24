@@ -184,13 +184,32 @@ smaller than your ability to measure it.
 
 ### Sizing — `Risk/sizing.py`
 
-```
-raw       =  direction / sigma_hat                 per sleeve
-raw       =  raw / sum |raw|                       normalised
-sigma_p   =  sqrt( wT D C D w )                    D = diag(sigma_hat), C = correlation
-leverage  =  clip( target_vol / sigma_p, -cap, cap )
-weight    =  raw * leverage
-```
+Each sleeve's raw weight is its direction divided by its forecast volatility, then normalised so
+the book is exactly one times gross:
+
+$$
+\tilde{w}_i = \frac{s_i}{\hat{\sigma}_i}
+\qquad\qquad
+w_i = \frac{\tilde{w}_i}{\sum_j |\tilde{w}_j|}
+$$
+
+That book's forecast volatility uses the volatilities on the diagonal and the correlations off it:
+
+$$
+\sigma_p = \sqrt{\mathbf{w}^{\top} D\,C\,D\,\mathbf{w}}
+\qquad
+D = \mathrm{diag}(\hat{\sigma}_1, \dots, \hat{\sigma}_n)
+$$
+
+One leverage factor then scales the whole book onto the target:
+
+$$
+L = \mathrm{clip}\!\left(\frac{\sigma_{\mathrm{target}}}{\sigma_p},\; -\mathrm{cap},\; \mathrm{cap}\right)
+\qquad\qquad
+\mathbf{w}^{\mathrm{final}} = L \cdot \mathbf{w}
+$$
+
+where $s_i \in \{-1, 0, +1\}$ is the order and $\hat{\sigma}_i$ the volatility forecast.
 
 `C` is the **correlation** matrix, not covariance — the volatilities enter through `D`, and
 passing covariance instead double-counts them. The correlation is refit every `refit` days on a
@@ -220,15 +239,11 @@ a second time — about −2%/year at 20% volatility.
 negative and correct — it is the margin loan. Clamping it at zero breaks the identity below and
 mints money on every levered day.
 
-**Two identities that must hold exactly.**
+**The ledger identity.** This must hold on every row, to exactly 0.0:
 
 ```
-Balance = Cash + Held - Transaction          on every row, to 0.0
-
-same backtest at a different start_balance   ->  identical RETURNS
+Balance = Cash + Held - Transaction
 ```
-
-The second is a scale-invariance test: any dependence on the seed is a units bug.
 
 ---
 
@@ -290,4 +305,3 @@ first thing to attack.
   information, no gap modelling, and every trade priced at the close. The `RS` and `YZ`
   estimators are the sole exception, and neither is used in the run above.
 - **Survivorship.** The universe is chosen today, so delisted names are absent.
-
